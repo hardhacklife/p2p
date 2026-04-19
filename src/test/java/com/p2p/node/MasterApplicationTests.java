@@ -1,4 +1,4 @@
-package com.p2p.master;
+package com.p2p.node;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

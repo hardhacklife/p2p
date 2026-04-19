@@ -1,13 +1,13 @@
-package com.p2p.master;
+package com.p2p.node;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class MasterApplication {
+public class P2pNodeApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(MasterApplication.class, args);
+		SpringApplication.run(P2pNodeApplication.class, args);
 	}
 
 }

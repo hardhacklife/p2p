@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>P2P File System</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            text-align: center;
+            margin: 0;
+        }
+
+        .container {
+            margin-top: 40px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            margin: 15px auto;
+            width: 320px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        input, select, button, textarea {
+            margin: 10px;
+            padding: 10px;
+            width: 85%;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        textarea {
+            resize: none;
+        }
+
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        .status {
+            margin-top: 15px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            margin: 5px 0;
+        }
+
+        a {
+            text-decoration: none;
+            color: #007bff;
+            cursor: pointer;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .then(() => {
+        setStatus("Upload réussi ✅");
+        loadFiles(); // 🔥 refresh auto
+        })
+
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>📁 P2P File System</h1>
+
+    <!-- 🔹 Choix node -->
+    <div class="card">
+        <h3>Choisir un node</h3>
+        <select id="nodeSelect">
+            <option value="http://localhost:5000">Node 5000</option>
+            <option value="http://localhost:5001">Node 5001</option>
+            <option value="http://localhost:5002">Node 5002</option>
+        </select>
+    </div>
+
+    <!-- 🔹 Upload -->
+    <div class="card">
+        <h3>Upload fichier</h3>
+        <input type="file" id="fileInput">
+        <button onclick="upload()">Upload</button>
+    </div>
+
+    <!-- 🔹 Download -->
+    <div class="card">
+        <h3>Télécharger fichier</h3>
+        <input type="text" id="filename" placeholder="Nom du fichier">
+        <button onclick="download()">Download</button>
+    </div>
+
+    <!-- 🔥 Création fichier -->
+    <div class="card">
+        <h3>Créer un fichier texte</h3>
+
+        <input type="text" id="newFilename" placeholder="Nom (ex: test.txt)">
+
+        <textarea id="fileContent" rows="4" placeholder="Écris ton texte ici..."></textarea>
+
+        <button onclick="createFile()">Créer et envoyer</button>
+    </div>
+
+    <!-- 🔥 LISTE DES FICHIERS -->
+    <div class="card">
+        <h3>Liste des fichiers</h3>
+        <button onclick="loadFiles()">Afficher</button>
+
+        <ul id="fileList"></ul>
+    </div>
+
+    <p class="status" id="status"></p>
+
+</div>
+
+<script>
+
+    function getBaseUrl() {
+        return document.getElementById("nodeSelect").value;
+    }
+
+    function setStatus(message, isError = false) {
+        const status = document.getElementById("status");
+        status.style.color = isError ? "red": "green";
+        status.innerText = message;
+    }
+
+    // 🔹 Upload
+    function upload() {
+        const file = document.getElementById('fileInput').files[0];
+
+        if (!file) {
+            setStatus("Choisis un fichier !", true);
+            return;
+        }
+
+        const url = getBaseUrl() + '/files/' + file.name;
+
+        setStatus("Upload en cours...");
+
+        fetch(url, {
+            method: 'POST',
+            body: file
+        })
+        .then(res => res.text())
+        .then(() => setStatus("Upload réussi ✅"))
+        .catch(() => setStatus("Erreur upload ❌", true));
+    }
+
+    // 🔹 Download
+    function download() {
+        const filename = document.getElementById('filename').value;
+
+        if (!filename) {
+            setStatus("Entre un nom de fichier", true);
+            return;
+        }
+
+        fetch(getBaseUrl() + '/files/' + filename)
+        .then(res => {
+            if (!res.ok) throw new Error();
+            return res.blob();
+        })
+        .then(blob => {
+            const link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = filename;
+            link.click();
+
+            setStatus("Téléchargement réussi ✅");
+        })
+        .catch(() => setStatus("Fichier non trouvé ❌", true));
+    }
+
+    // 🔥 Création fichier
+    function createFile() {
+        const filename = document.getElementById('newFilename').value;
+        const content = document.getElementById('fileContent').value;
+
+        if (!filename || !content) {
+            setStatus("Remplis tous les champs", true);
+            return;
+        }
+
+        fetch(getBaseUrl() + '/files/' + filename, {
+            method: 'POST',
+            body: content
+        })
+        .then(() => setStatus("Fichier créé ✅"))
+        .catch(() => setStatus("Erreur ❌", true));
+    }
+
+    // 🔥 LISTE FICHIERS
+    function loadFiles() {
+        setStatus("Chargement...");
+
+        fetch(getBaseUrl() + '/files')
+        .then(res => res.json())
+        .then(files => {
+            const list = document.getElementById("fileList");
+            list.innerHTML = "";
+
+            if (files.length === 0) {
+                list.innerHTML = "<li>Aucun fichier</li>";
+                setStatus("Aucun fichier");
+                return;
+            }
+
+            files.forEach(file => {
+                const li = document.createElement("li");
+                li.innerHTML = `<a onclick="downloadFromList('${file}')">${file}</a>`;
+                list.appendChild(li);
+            });
+
+            setStatus("Liste chargée ✅");
+        })
+        .catch(() => setStatus("Erreur chargement ❌", true));
+    }
+
+    // 🔥 Télécharger depuis la liste
+    function downloadFromList(filename) {
+        document.getElementById("filename").value = filename;
+        download();
+    }
+
+</script>
+
+</body>
+</html>
