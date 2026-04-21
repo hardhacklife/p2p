@@ -1,6 +1,6 @@
-package com.p2p.node.service;
+package com.p2p.master.service;
 
-import com.p2p.node.config.NodeConfig;
+import com.p2p.master.config.NodeConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;

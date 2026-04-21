@@ -1,247 +1,661 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>P2P File System</title>
 
     <style>
+        :root {
+            --bg: #0f172a;
+            --bg-soft: #111827;
+            --panel: rgba(255, 255, 255, 0.08);
+            --panel-solid: #ffffff;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --secondary: #0ea5e9;
+            --text: #0f172a;
+            --text-light: #64748b;
+            --white: #ffffff;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --warning: #f59e0b;
+            --border: #e2e8f0;
+            --shadow: 0 10px 30px rgba(15, 23, 42, 0.10);
+            --radius: 18px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background: #f4f6f8;
-            text-align: center;
             margin: 0;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background:
+                    radial-gradient(circle at top left, rgba(37, 99, 235, 0.18), transparent 30%),
+                    radial-gradient(circle at top right, rgba(14, 165, 233, 0.18), transparent 30%),
+                    linear-gradient(135deg, #eaf2ff 0%, #f8fbff 45%, #eef4ff 100%);
+            color: var(--text);
+            min-height: 100vh;
         }
 
-        .container {
-            margin-top: 40px;
+        .app {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 32px 20px 40px;
         }
 
-        h1 {
-            color: #333;
+        .hero {
+            background: linear-gradient(135deg, #0f172a, #1e3a8a);
+            color: var(--white);
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.25);
+            margin-bottom: 28px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(120deg, transparent, rgba(255,255,255,0.07), transparent);
+            transform: translateX(-100%);
+            animation: shine 6s linear infinite;
+        }
+
+        @keyframes shine {
+            to {
+                transform: translateX(100%);
+            }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand-icon {
+            width: 58px;
+            height: 58px;
+            border-radius: 16px;
+            background: rgba(255,255,255,0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            backdrop-filter: blur(8px);
+        }
+
+        .hero h1 {
+            margin: 0;
+            font-size: 30px;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+        }
+
+        .hero p {
+            margin: 10px 0 0;
+            color: rgba(255,255,255,0.82);
+            font-size: 15px;
+            max-width: 720px;
+            line-height: 1.6;
+        }
+
+        .node-badge {
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.16);
+            border-radius: 999px;
+            padding: 10px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            backdrop-filter: blur(8px);
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 20px;
         }
 
         .card {
-            background: white;
-            padding: 20px;
-            margin: 15px auto;
-            width: 320px;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            grid-column: span 4;
+            background: rgba(255, 255, 255, 0.82);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.6);
+            border-radius: var(--radius);
+            padding: 22px;
+            box-shadow: var(--shadow);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
         }
 
-        input, select, button, textarea {
-            margin: 10px;
-            padding: 10px;
-            width: 85%;
-            border-radius: 5px;
-            border: 1px solid #ccc;
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 14px 34px rgba(15, 23, 42, 0.14);
+        }
+
+        .card.large {
+            grid-column: span 6;
+        }
+
+        .card.full {
+            grid-column: span 12;
+        }
+
+        .card h3 {
+            margin: 0 0 6px;
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .card-subtitle {
+            margin: 0 0 18px;
+            color: var(--text-light);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #334155;
+            text-align: left;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 13px 14px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: #fff;
+            outline: none;
+            font-size: 14px;
+            color: var(--text);
+            transition: all 0.2s ease;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: #93c5fd;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.10);
         }
 
         textarea {
-            resize: none;
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 16px;
         }
 
         button {
-            background: #007bff;
-            color: white;
             border: none;
+            border-radius: 12px;
+            padding: 12px 18px;
             cursor: pointer;
-        }
-
-        button:hover {
-            background: #0056b3;
-        }
-
-        .status {
-            margin-top: 15px;
             font-size: 14px;
-            font-weight: bold;
+            font-weight: 600;
+            transition: all 0.25s ease;
         }
 
-        ul {
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.22);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.03);
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e1;
+        }
+
+        .status-box {
+            margin-top: 22px;
+            padding: 16px 18px;
+            border-radius: 14px;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-height: 58px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--success);
+            flex-shrink: 0;
+        }
+
+        .status-text {
+            font-size: 14px;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        .file-list {
             list-style: none;
+            margin: 18px 0 0;
             padding: 0;
+            display: grid;
+            gap: 12px;
         }
 
-        li {
-            margin: 5px 0;
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 14px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            background: #ffffff;
+            transition: all 0.2s ease;
         }
 
-        a {
-            text-decoration: none;
-            color: #007bff;
-            cursor: pointer;
+        .file-item:hover {
+            border-color: #bfdbfe;
+            background: #f8fbff;
         }
 
-        a:hover {
-            text-decoration: underline;
+        .file-name {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            color: #1e293b;
+            word-break: break-word;
         }
+        .file-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: #dbeafe;
+            color: #1d4ed8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .file-actions button {
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px 16px;
+            color: var(--text-light);
+            border: 1px dashed #cbd5e1;
+            border-radius: 16px;
+            background: #f8fafc;
+        }
+
+        .muted {
+            color: var(--text-light);
+            font-size: 13px;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 992px) {
+            .card,
+            .card.large {
+                grid-column: span 12;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .hero {
+                padding: 24px 20px;
+            }
+
+            .hero h1 {
+                font-size: 24px;
+            }
+
+            .app {
+                padding: 18px 14px 30px;
+            }
+
+            .file-item {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .file-actions button {
+                width: 100%;
+            }
+        }
+>>>>>>> Stashed changes
     </style>
 </head>
-
 <body>
 
-<div class="container">
+<div class="app">
 
-    <h1>📁 P2P File System</h1>
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-top">
+                <div class="brand">
+                    <div class="brand-icon">📁</div>
+                    <div>
+                        <h1>P2P File System</h1>
+                        <p>
+                            Interface professionnelle de gestion distribuée des fichiers :
+                            sélection du nœud, upload, téléchargement, création de fichiers texte
+                            et consultation rapide du stockage disponible.
+                        </p>
+                    </div>
+                </div>
 
-    <!-- 🔹 Choix node -->
-    <div class="card">
-        <h3>Choisir un node</h3>
-        <select id="nodeSelect">
-            <option value="http://localhost:5000">Node 5000</option>
-            <option value="http://localhost:5001">Node 5001</option>
-            <option value="http://localhost:5002">Node 5002</option>
-        </select>
-    </div>
+                <div class="node-badge" id="activeNodeBadge">Nœud actif : Node 5000</div>
+            </div>
+        </div>
+    </section>
 
-    <!-- 🔹 Upload -->
-    <div class="card">
-        <h3>Upload fichier</h3>
-        <input type="file" id="fileInput">
-        <button onclick="upload()">Upload</button>
-    </div>
+    <section class="dashboard">
 
-    <!-- 🔹 Download -->
-    <div class="card">
-        <h3>Télécharger fichier</h3>
-        <input type="text" id="filename" placeholder="Nom du fichier">
-        <button onclick="download()">Download</button>
-    </div>
+        <!-- Choix node -->
+        <div class="card">
+            <h3>Choix du nœud</h3>
+            <p class="card-subtitle">Sélectionne le nœud cible sur lequel tu veux exécuter les opérations.</p>
 
-    <!-- 🔥 Création fichier -->
-    <div class="card">
-        <h3>Créer un fichier texte</h3>
+            <label for="nodeSelect">Nœud disponible</label>
+            <select id="nodeSelect" onchange="updateNodeBadge()">
+                <option value="http://localhost:5000">Node 5000</option>
+                <option value="http://localhost:5001">Node 5001</option>
+                <option value="http://localhost:5002">Node 5002</option>
+            </select>
 
-        <input type="text" id="newFilename" placeholder="Nom (ex: test.txt)">
+            <p class="muted">Les requêtes seront envoyées vers le nœud actuellement sélectionné.</p>
+        </div>
 
-        <textarea id="fileContent" rows="4" placeholder="Écris ton texte ici..."></textarea>
+        <!-- Upload -->
+        <div class="card">
+            <h3>Upload de fichier</h3>
+            <p class="card-subtitle">Ajoute un document existant dans le système distribué.</p>
 
-        <button onclick="createFile()">Créer et envoyer</button>
-    </div>
+            <label for="fileInput">Sélection du fichier</label>
+            <input type="file" id="fileInput">
 
-    <!-- 🔥 LISTE DES FICHIERS -->
-    <div class="card">
-        <h3>Liste des fichiers</h3>
-        <button onclick="loadFiles()">Afficher</button>
+            <div class="actions">
+                <button class="btn-primary" onclick="upload()">Uploader le fichier</button>
+            </div>
+        </div>
 
-        <ul id="fileList"></ul>
-    </div>
+        <!-- Download -->
+        <div class="card">
+            <h3>Téléchargement</h3>
+            <p class="card-subtitle">Récupère un fichier en indiquant son nom exact.</p>
 
-    <p class="status" id="status"></p>
+            <label for="filename">Nom du fichier</label>
+            <input type="text" id="filename" placeholder="Ex : rapport.pdf">
 
+            <div class="actions">
+                <button class="btn-primary" onclick="download()">Télécharger</button>
+            </div>
+        </div>
+
+        <!-- Création fichier -->
+        <div class="card large">
+            <h3>Créer un fichier texte</h3>
+            <p class="card-subtitle">Rédige et envoie directement un nouveau fichier texte sur le nœud choisi.</p>
+
+            <label for="newFilename">Nom du fichier</label>
+            <input type="text" id="newFilename" placeholder="Ex : note.txt">
+
+            <label for="fileContent" style="margin-top:14px;">Contenu du fichier</label>
+            <textarea id="fileContent" placeholder="Écris ton texte ici..."></textarea>
+
+            <div class="actions">
+                <button class="btn-primary" onclick="createFile()">Créer et envoyer</button>
+            </div>
+        </div>
+
+        <!-- Statut -->
+        <div class="card large">
+            <h3>État du système</h3>
+            <p class="card-subtitle">Les opérations effectuées sur le système sont affichées ici en temps réel.</p>
+
+            <div class="status-box">
+                <div class="status-dot" id="statusDot"></div>
+                <div class="status-text" id="status">Prêt à exécuter une opération.</div>
+            </div>
+        </div>
+
+        <!-- Liste fichiers -->
+        <div class="card full">
+            <h3>Liste des fichiers</h3>
+            <p class="card-subtitle">Affiche les fichiers disponibles sur le nœud sélectionné et télécharge-les en un clic.</p>
+
+            <div class="actions">
+                <button class="btn-primary" onclick="loadFiles()">Actualiser la liste</button>
+                <button class="btn-secondary" onclick="clearList()">Vider l’affichage</button>
+            </div>
+
+            <ul id="fileList" class="file-list"></ul>
+        </div>
+
+    </section>
 </div>
 
 <script>
-
     function getBaseUrl() {
         return document.getElementById("nodeSelect").value;
     }
 
-    function setStatus(message, isError = false) {
-        const status = document.getElementById("status");
-        status.style.color = isError ? "red": "green";
-        status.innerText = message;
+    function updateNodeBadge() {
+        const select = document.getElementById("nodeSelect");
+        const selectedText = select.options[select.selectedIndex].text;
+        document.getElementById("activeNodeBadge").innerText = "Nœud actif : " + selectedText;
     }
 
-    // 🔹 Upload
+    function setStatus(message, type = "success") {
+        const status = document.getElementById("status");
+        const dot = document.getElementById("statusDot");
+
+        status.innerText = message;
+
+        if (type === "error") {
+            dot.style.background = "#dc2626";
+            status.style.color = "#991b1b";
+        } else if (type === "loading") {
+            dot.style.background = "#f59e0b";
+            status.style.color = "#92400e";
+        } else {
+            dot.style.background = "#16a34a";
+            status.style.color = "#166534";
+        }
+    }
+
     function upload() {
-        const file = document.getElementById('fileInput').files[0];
+        const file = document.getElementById("fileInput").files[0];
 
         if (!file) {
-            setStatus("Choisis un fichier !", true);
+            setStatus("Veuillez choisir un fichier avant l’upload.", "error");
             return;
         }
 
-        const url = getBaseUrl() + '/files/' + file.name;
-
-        setStatus("Upload en cours...");
+        const url = getBaseUrl() + "/files/" + encodeURIComponent(file.name);
+        setStatus("Upload en cours...", "loading");
 
         fetch(url, {
-            method: 'POST',
+            method: "POST",
             body: file
         })
-        .then(res => res.text())
-        .then(() => setStatus("Upload réussi ✅"))
-        .catch(() => setStatus("Erreur upload ❌", true));
+            .then(res => {
+                if (!res.ok) throw new Error();
+                return res.text();
+            })
+            .then(() => {
+                setStatus("Upload réussi ✅", "success");
+                document.getElementById("fileInput").value = "";
+                loadFiles();
+            })
+            .catch(() => {
+                setStatus("Erreur lors de l’upload ❌", "error");
+            });
     }
 
-    // 🔹 Download
     function download() {
-        const filename = document.getElementById('filename').value;
+        const filename = document.getElementById("filename").value.trim();
 
         if (!filename) {
-            setStatus("Entre un nom de fichier", true);
+            setStatus("Veuillez entrer le nom du fichier à télécharger.", "error");
             return;
         }
 
-        fetch(getBaseUrl() + '/files/' + filename)
-        .then(res => {
-            if (!res.ok) throw new Error();
-            return res.blob();
-        })
-        .then(blob => {
-            const link = document.createElement('a');
-            link.href = window.URL.createObjectURL(blob);
-            link.download = filename;
-            link.click();
+        setStatus("Téléchargement en cours...", "loading");
 
-            setStatus("Téléchargement réussi ✅");
-        })
-        .catch(() => setStatus("Fichier non trouvé ❌", true));
+        fetch(getBaseUrl() + "/files/" + encodeURIComponent(filename))
+            .then(res => {
+                if (!res.ok) throw new Error();
+                return res.blob();
+            })
+            .then(blob => {
+                const link = document.createElement("a");
+                link.href = window.URL.createObjectURL(blob);
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+
+                setStatus("Téléchargement réussi ✅", "success");
+            })
+            .catch(() => {
+                setStatus("Fichier introuvable ou téléchargement impossible ❌", "error");
+            });
     }
 
-    // 🔥 Création fichier
     function createFile() {
-        const filename = document.getElementById('newFilename').value;
-        const content = document.getElementById('fileContent').value;
+        const filename = document.getElementById("newFilename").value.trim();
+        const content = document.getElementById("fileContent").value.trim();
 
         if (!filename || !content) {
-            setStatus("Remplis tous les champs", true);
+            setStatus("Veuillez renseigner le nom du fichier et son contenu.", "error");
             return;
         }
 
-        fetch(getBaseUrl() + '/files/' + filename, {
-            method: 'POST',
+        setStatus("Création du fichier en cours...", "loading");
+
+        fetch(getBaseUrl() + "/files/" + encodeURIComponent(filename), {
+            method: "POST",
             body: content
         })
-        .then(() => setStatus("Fichier créé ✅"))
-        .catch(() => setStatus("Erreur ❌", true));
-    }
-
-    // 🔥 LISTE FICHIERS
-    function loadFiles() {
-        setStatus("Chargement...");
-
-        fetch(getBaseUrl() + '/files')
-        .then(res => res.json())
-        .then(files => {
-            const list = document.getElementById("fileList");
-            list.innerHTML = "";
-
-            if (files.length === 0) {
-                list.innerHTML = "<li>Aucun fichier</li>";
-                setStatus("Aucun fichier");
-                return;
-            }
-
-            files.forEach(file => {
-                const li = document.createElement("li");
-                li.innerHTML = `<a onclick="downloadFromList('${file}')">${file}</a>`;
-                list.appendChild(li);
+            .then(res => {
+                if (!res.ok) throw new Error();
+                return res.text();
+            })
+            .then(() => {
+                setStatus("Fichier créé et envoyé ✅", "success");
+                document.getElementById("newFilename").value = "";
+                document.getElementById("fileContent").value = "";
+                loadFiles();
+            })
+            .catch(() => {
+                setStatus("Erreur lors de la création du fichier ❌", "error");
             });
-
-            setStatus("Liste chargée ✅");
-        })
-        .catch(() => setStatus("Erreur chargement ❌", true));
     }
 
-    // 🔥 Télécharger depuis la liste
+    function loadFiles() {
+        setStatus("Chargement de la liste des fichiers...", "loading");
+
+        fetch(getBaseUrl() + "/files")
+            .then(res => {
+                if (!res.ok) throw new Error();
+                return res.json();
+            })
+            .then(files => {
+                const list = document.getElementById("fileList");
+                list.innerHTML = "";
+
+                if (!files || files.length === 0) {
+                    list.innerHTML = `
+                    <div class="empty-state">
+                        Aucun fichier disponible sur ce nœud.
+                    </div>
+                `;
+                    setStatus("Aucun fichier trouvé.", "success");
+                    return;
+                }
+
+                files.forEach(file => {
+                    const item = document.createElement("li");
+                    item.className = "file-item";
+
+                    item.innerHTML = `
+                    <div class="file-name">
+                        <div class="file-icon">📄</div>
+                        <span>${file}</span>
+                    </div>
+                    <div class="file-actions">
+                        <button class="btn-secondary" onclick="downloadFromList('${file.replace(/'/g, "\\'")}')">
+                            Télécharger
+                        </button>
+                    </div>
+                `;
+
+                    list.appendChild(item);
+                });
+
+                setStatus("Liste des fichiers chargée ✅", "success");
+            })
+            .catch(() => {
+                setStatus("Erreur lors du chargement de la liste ❌", "error");
+            });
+    }
+
     function downloadFromList(filename) {
         document.getElementById("filename").value = filename;
         download();
     }
 
+    function clearList() {
+        document.getElementById("fileList").innerHTML = "";
+        setStatus("Affichage de la liste vidé.", "success");
+    }
+
+    updateNodeBadge();
 </script>
 
 </body>

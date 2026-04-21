@@ -1,6 +1,6 @@
-package com.p2p.node.controller;
+package com.p2p.master.controller;
 
-import com.p2p.node.service.FileService;
+import com.p2p.master.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
