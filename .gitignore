@@ -4,6 +4,9 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+### Storage files ###
+/storages/
+
 ### STS ###
 .apt_generated
 .classpath

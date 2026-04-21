@@ -1,8 +1,8 @@
 server:
-  port: 5000
+  port: 5003
 
 node:
-  storage: storage_node_5000
+  storage: storages/nodes/5000
   peers:
     - http://localhost:5001
     - http://localhost:5002

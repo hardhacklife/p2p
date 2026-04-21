@@ -15,7 +15,7 @@ public class FileController {
     @Autowired
     private FileService fileService;
 
-    // 🔹 UPLOAD
+    // UPLOAD
     @PostMapping("/{filename}")
     public ResponseEntity<String> upload(
             @PathVariable String filename,
@@ -26,7 +26,7 @@ public class FileController {
         return ResponseEntity.ok("Fichier uploadé !");
     }
 
-    // 🔹 DOWNLOAD avec TTL
+    // DOWNLOAD avec TTL
     @GetMapping("/{filename}")
     public ResponseEntity<byte[]> download(
             @PathVariable String filename,
@@ -43,7 +43,7 @@ public class FileController {
                 .body(data);
     }
 
-    // 🔹 DELETE
+    // DELETE
     @DeleteMapping("/{filename}")
     public ResponseEntity<String> delete(@PathVariable String filename) {
 
@@ -54,7 +54,7 @@ public class FileController {
                 : ResponseEntity.notFound().build();
     }
 
-    // 🔥 LISTE
+    // LISTE
     @GetMapping
     public ResponseEntity<List<String>> listFiles() {
         return ResponseEntity.ok(fileService.listFiles());

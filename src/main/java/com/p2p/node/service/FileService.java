@@ -19,7 +19,7 @@ public class FileService {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    // 🔹 SAVE
+    // SAVE
     public void saveFile(String filename, byte[] data, boolean replicate) {
         try {
             Path path = Paths.get(config.getStorage(), filename);
@@ -38,7 +38,7 @@ public class FileService {
         }
     }
 
-    // 🔹 REPLICATION
+    // REPLICATION
     private void replicateFile(String filename, byte[] data) {
         for (String peer : config.getPeers()) {
             try {
@@ -56,7 +56,7 @@ public class FileService {
         }
     }
 
-    // 🔹 GET AVEC TTL
+    // GET AVEC TTL
     public byte[] getFile(String filename, int ttl) {
 
         if (ttl <= 0) {
