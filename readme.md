@@ -18,14 +18,14 @@ storages/nodes/[port]
 ### Exemples
 
 ```text
+storages/nodes/5000
 storages/nodes/5001
 storages/nodes/5002
-storages/nodes/5003
 ```
 
+* Le nœud sur `5000` écrit dans `storages/nodes/5000`
 * Le nœud sur `5001` écrit dans `storages/nodes/5001`
 * Le nœud sur `5002` écrit dans `storages/nodes/5002`
-* Le nœud sur `5003` écrit dans `storages/nodes/5003`
 
 ---
 
@@ -57,21 +57,21 @@ Chaque profil démarre l’application sur un port différent.
 
 ```yaml
 server:
-  port: 5001
+  port: 5000
 ```
 
 ### application-node2.yml
 
 ```yaml
 server:
-  port: 5002
+  port: 5001
 ```
 
 ### application-node3.yml
 
 ```yaml
 server:
-  port: 5003
+  port: 5002
 ```
 
 ---
@@ -163,9 +163,9 @@ mvn spring-boot:run -Dspring-boot.run.profiles=node3
 
 Une fois les nœuds démarrés :
 
+* http://localhost:5000
 * http://localhost:5001
 * http://localhost:5002
-* http://localhost:5003
 
 ---
 
@@ -174,9 +174,9 @@ Une fois les nœuds démarrés :
 Les dossiers suivants seront créés automatiquement :
 
 ```text
-storages/nodes/5001
+storages/nodes/5000
+              /5001
               /5002
-              /5003
 ```
 
 Chaque nœud garde ses propres fichiers localement.
